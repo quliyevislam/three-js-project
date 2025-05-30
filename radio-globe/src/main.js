@@ -30,6 +30,8 @@ window.addEventListener("resize", () => {
 
 
 
+
+
 // GLOBE
 const globe = new THREE.Mesh(
     new THREE.SphereGeometry(1, 50, 50),
@@ -40,6 +42,24 @@ const globe = new THREE.Mesh(
 scene.add(globe);
 
 
+const testGlobe1 = new THREE.Mesh(
+    new THREE.SphereGeometry(2, 50, 50),
+    new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        wireframe: true
+    })
+);
+scene.add(testGlobe1);
+
+
+const testGlobe2 = new THREE.Mesh(
+    new THREE.SphereGeometry(3, 50, 50),
+    new THREE.MeshBasicMaterial({
+        color: 0x0000ff,
+        wireframe: true
+    })
+);
+scene.add(testGlobe2);
 
 
 
