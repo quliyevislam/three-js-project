@@ -7,6 +7,9 @@ const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 10
 const controls = new OrbitControls(camera, canvas);
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 const texture = new THREE.TextureLoader().load(`world-uv-map.jpg`);
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
 
 camera.position.set(0, 0, 3);
 controls.update();
@@ -83,12 +86,65 @@ scene.add(starField);
 
 
 
+const objectsArray = [];
+
+const testGlobe1 = new THREE.Mesh(
+    new THREE.SphereGeometry(0.005, 5, 5),
+    new THREE.MeshBasicMaterial({
+        color: 0x00ff00
+    })
+);
+testGlobe1.position.set(0, 0, 1);
+scene.add(testGlobe1);
+console.log(`testGlobe1.uuid: ${testGlobe1.uuid}`);
+
+
+const testGlobe2 = new THREE.Mesh(
+    new THREE.SphereGeometry(0.005, 10, 10),
+    new THREE.MeshBasicMaterial({
+        color: 0x00ff00
+    })
+);
+testGlobe2.position.set(0, 1, 0);
+scene.add(testGlobe2);
+console.log(`testGlobe2.uuid: ${testGlobe2.uuid}`);
+
+
+const testGlobe3 = new THREE.Mesh(
+    new THREE.SphereGeometry(0.005, 10, 10),
+    new THREE.MeshBasicMaterial({
+        color: 0x00ff00
+    })
+);
+testGlobe3.position.set(1, 0, 0);
+scene.add(testGlobe3);
+console.log(`testGlobe3.uuid: ${testGlobe3.uuid}`);
+
+
+objectsArray.push(testGlobe1, testGlobe2, testGlobe3);
 
 
 
+function onPointerMove( event ) {
+
+    pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+    raycaster.setFromCamera( pointer, camera );
+
+    // Get an array of all intersections with testGlobe
+    const intersects = raycaster.intersectObjects( objectsArray );
+
+    // Check if the intersects array has any elements
+    if ( intersects.length > 0 ) {
+        const firstIntersection = intersects[ 0 ];
+        // console.log( 'testGlobe was intersected!', firstIntersection.point );
+        console.log( firstIntersection.object);
+    }
+}
 
 
-
+document.addEventListener( 'click', onPointerMove );
 
 const animate = () => {
     renderer.render(scene, camera);
