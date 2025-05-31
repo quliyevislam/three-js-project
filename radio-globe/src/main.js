@@ -8,7 +8,7 @@ const controls = new OrbitControls(camera, canvas);
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 const texture = new THREE.TextureLoader().load(`world-uv-map.jpg`);
 
-camera.position.set(0, 0, 2);
+camera.position.set(0, 0, 3);
 controls.update();
 controls.enablePan = false;
 controls.maxDistance = 5;
@@ -28,7 +28,11 @@ window.addEventListener("resize", () => {
 });
 
 
-// GLOBE
+
+
+
+
+
 const globe = new THREE.Mesh(
     new THREE.SphereGeometry(1, 50, 50),
     new THREE.MeshBasicMaterial({
@@ -38,24 +42,7 @@ const globe = new THREE.Mesh(
 scene.add(globe);
 
 
-const testGlobe1 = new THREE.Mesh(
-    new THREE.SphereGeometry(2, 50, 50),
-    new THREE.MeshBasicMaterial({
-        color: 0xffffff,
-        wireframe: true
-    })
-);
-scene.add(testGlobe1);
 
-// STARS
-const testGlobe2 = new THREE.Mesh(
-    new THREE.SphereGeometry(3, 50, 50),
-    new THREE.MeshBasicMaterial({
-        color: 0x0000ff,
-        wireframe: true
-    })
-);
-scene.add(testGlobe2);
 
 
 const getRandomPoints = (r1, r2, count) => {
@@ -76,23 +63,32 @@ const getRandomPoints = (r1, r2, count) => {
         vertices[i + 1] = y;
         vertices[i + 2] = z;
     }
-
     return vertices;
 }
+
 const starField = new THREE.Points(
     new THREE.BufferGeometry().setAttribute(
         "position",
         new THREE.BufferAttribute(
-            getRandomPoints(2, 3, 400000),
+            getRandomPoints(6, 7, 2000),
             3
         )
     ),
     new THREE.PointsMaterial({
-        size: 0.005,
+        size: 0.01,
         color: 0xffffff
     })
 );
 scene.add(starField);
+
+
+
+
+
+
+
+
+
 
 const animate = () => {
     renderer.render(scene, camera);
