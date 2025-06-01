@@ -15,7 +15,7 @@ camera.position.set(0, 0, 3);
 controls.update();
 controls.enablePan = false;
 controls.maxDistance = 5;
-controls.minDistance = 1.5;
+controls.minDistance = 1.15;
 controls.addEventListener("change", () => {
     controls.rotateSpeed = camera.position.length() / 10;
     controls.zoomSpeed = camera.position.length() / 10;
@@ -85,43 +85,84 @@ const starField = new THREE.Points(
 scene.add(starField);
 
 
+let extra = 90;
 
-const objectsArray = [];
+const stations = [
+    {
+        name: "station-1",
+        lat: 40.329752794739626,
+        lng: 50.57553777880485 + extra
+    },
+    {
+        name: "station-0",
+        lat: 41.10567638855535,
+        lng: 45.42114399550441 + extra
+    },
+    {
+        name: "station-2",
+        lat: 41.11351108495903,
+        lng: 28.449840089611545 + extra
+    },
+    {
+        name: "station-3",
+        lat: 42.24604985990886,
+        lng: 13.498293415810641 + extra
+    },
+    {
+        name: "station-4",
+        lat: 42.55723792353669,
+        lng: -74.77314926952118 + extra
+    },
+    {
+        name: "station-4",
+        lat: 0,
+        lng: 0
+    },
+    {
+        name: "station-4",
+        lat: 0 ,
+        lng: 0
+    }
+]
 
-const testGlobe1 = new THREE.Mesh(
-    new THREE.SphereGeometry(0.005, 5, 5),
-    new THREE.MeshBasicMaterial({
-        color: 0x00ff00
-    })
-);
-testGlobe1.position.set(0, 0, 1);
-scene.add(testGlobe1);
-console.log(`testGlobe1.uuid: ${testGlobe1.uuid}`);
+
+stations.forEach((element) => {
+    let x,y,z;
+    let angle1 = element.lat * (Math.PI / 180);
+    let angle2 = element.lng * (Math.PI / 180);
+    y = Math.sin(angle1);
+    let projection = Math.cos(angle1);
+    z = projection * Math.cos(angle2);
+    x = projection * Math.sin(angle2);
+    element.x = x;
+    element.y = y;
+    element.z = z;
+});
+
+console.log(stations);
 
 
-const testGlobe2 = new THREE.Mesh(
-    new THREE.SphereGeometry(0.005, 10, 10),
-    new THREE.MeshBasicMaterial({
-        color: 0x00ff00
-    })
-);
-testGlobe2.position.set(0, 1, 0);
-scene.add(testGlobe2);
-console.log(`testGlobe2.uuid: ${testGlobe2.uuid}`);
+const createObjects = (stations) => {
+    const objects = [];
+    let  mesh;
+    for (let i = 0; i < stations.length; i++) {
+            mesh = new THREE.Mesh(
+                new THREE.SphereGeometry(0.005,15,15),
+                new THREE.MeshBasicMaterial({color: 0x00ff00})
+            );
+            mesh.position.x = stations[i].x;
+            mesh.position.y = stations[i].y;
+            mesh.position.z = stations[i].z;
+            scene.add(mesh)
+            objects.push(mesh);
+    }
+    return objects;
+}
 
+const objectsArray = createObjects(stations);
 
-const testGlobe3 = new THREE.Mesh(
-    new THREE.SphereGeometry(0.005, 10, 10),
-    new THREE.MeshBasicMaterial({
-        color: 0x00ff00
-    })
-);
-testGlobe3.position.set(1, 0, 0);
-scene.add(testGlobe3);
-console.log(`testGlobe3.uuid: ${testGlobe3.uuid}`);
+console.log(objectsArray);
 
-
-objectsArray.push(testGlobe1, testGlobe2, testGlobe3);
 
 
 
@@ -132,13 +173,12 @@ function onPointerMove( event ) {
 
     raycaster.setFromCamera( pointer, camera );
 
-    // Get an array of all intersections with testGlobe
     const intersects = raycaster.intersectObjects( objectsArray );
 
-    // Check if the intersects array has any elements
     if ( intersects.length > 0 ) {
         const firstIntersection = intersects[ 0 ];
-        // console.log( 'testGlobe was intersected!', firstIntersection.point );
+        firstIntersection.object.material.color.r = 1;
+        firstIntersection.object.material.color.b = 1;
         console.log( firstIntersection.object);
     }
 }
@@ -147,6 +187,7 @@ function onPointerMove( event ) {
 document.addEventListener( 'click', onPointerMove );
 
 const animate = () => {
+    // globe.rotation.y += 0.001;
     renderer.render(scene, camera);
 }
 renderer.setAnimationLoop(animate);

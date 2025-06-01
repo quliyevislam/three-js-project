@@ -17,7 +17,7 @@ canvas {
 }
 
 canvas:hover {
-    cursor: grab;
+    cursor: pointer;
 }
 
 canvas:active {
