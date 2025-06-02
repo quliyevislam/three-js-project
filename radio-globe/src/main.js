@@ -3,7 +3,7 @@ import { OrbitControls } from "three/addons";
 import "./countries.js"
 import countries from "./countries.js";
 
-class Globe {
+class RadioGlobe {
     #canvas;
     #texture;
     #scene;
@@ -17,9 +17,18 @@ class Globe {
     #starField;
     #invisiblePins;
     #visiblePins;
-
+    #audio;
+    #playPauseBtn;
+    #volumeSlider;
+    #stationName;
+    #countryName;
     constructor(canvas, img) {
         this.#canvas = canvas;
+        this.#stationName = document.querySelector(".station");
+        this.#countryName = document.querySelector(".country");
+        this.#audio = document.querySelector("audio");
+        this.#playPauseBtn = document.querySelector(".pause-start-button");
+        this.#volumeSlider = document.querySelector(".volume");
         this.#loader = new THREE.TextureLoader();
         this.#texture = this.#loader.load(img);
         this.#scene = new THREE.Scene();
@@ -34,7 +43,7 @@ class Globe {
         this.#controls.enablePan = false;
         this.#controls.maxDistance = 5;
         this.#controls.minDistance = 1.15;
-        this.#renderer.setSize(innerWidth, innerHeight);
+        this.#renderer.setSize(innerWidth + 2, innerHeight + 2);
         this.#renderer.setPixelRatio(devicePixelRatio);
         this.#texture.colorSpace = THREE.SRGBColorSpace;
 
@@ -44,6 +53,7 @@ class Globe {
                 map: this.#texture
             })
         );
+
 
         this.#starField = new THREE.Points(
             new THREE.BufferGeometry().setAttribute(
@@ -62,10 +72,28 @@ class Globe {
     }
 
 
+    #changeVolume = () => {
+        this.#audio.volume = this.#volumeSlider.value;
+    }
+
+    #isPlaying = false;
+    #playPause = () => {
+        if (this.#isPlaying) {
+            this.#audio.pause();
+            this.#playPauseBtn.src = "play-icon.svg";
+            this.#isPlaying = !this.#isPlaying;
+        }
+        else {
+            this.#playPauseBtn.src = "pause-icon.svg";
+            this.#audio.play();
+            this.#isPlaying = !this.#isPlaying;
+        }
+    }
+
     #resizeWindow = () => {
         this.#camera.aspect = innerWidth / innerHeight;
         this.#camera.updateProjectionMatrix()
-        this.#renderer.setSize(innerWidth, innerHeight);
+        this.#renderer.setSize(innerWidth + 2, innerHeight + 2);
     }
 
     #updateControlSensitivity = () => {
@@ -151,6 +179,24 @@ class Globe {
                 this.#visiblePins[this.#invisiblePins.indexOf(this.#clickedPin)].scale.set(1, 1, 1);
             }
 
+            if (clicked !== this.#globe) {
+                const country = countries[this.#invisiblePins.indexOf(clicked) - 1];
+                fetch(`https://de2.api.radio-browser.info/json/stations/search?country=${country.name}&limit=20`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const station = data[Math.floor(Math.random() * data.length)]
+                        this.#audio.src = station.url_resolved;
+                        this.#audio.play();
+                        this.#isPlaying = !this.#isPlaying;
+                        this.#playPauseBtn.src = "pause-icon.svg";
+                        this.#countryName.innerText = station.country;
+                        this.#stationName.innerText = station.name;
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+            }
+
             if (firstIntersection !== this.#globe) {
                 firstIntersection.scale.set(2, 2, 2);
             }
@@ -171,7 +217,7 @@ class Globe {
             const firstIntersection = this.#visiblePins[this.#invisiblePins.indexOf(intersects[0].object)];
             const hovered = intersects[0].object;
 
-            if ((this.#hoveredPin && this.#hoveredPin !== hovered) && this.#hoveredPin !== this.#globe) {
+            if (this.#hoveredPin && this.#hoveredPin !== hovered && this.#hoveredPin !== this.#globe) {
                 this.#visiblePins[this.#invisiblePins.indexOf(this.#hoveredPin)].material.color.set(0x00ff00)
             }
 
@@ -189,6 +235,8 @@ class Globe {
         this.#scene.add(this.#starField);
         this.#scene.add(this.#globe);
         window.addEventListener("resize", this.#resizeWindow);
+        this.#volumeSlider.addEventListener("input", this.#changeVolume);
+        this.#playPauseBtn.addEventListener("click", this.#playPause);
         this.#controls.addEventListener("change", this.#updateControlSensitivity);
         this.#renderer.setAnimationLoop(this.#animate);
     }
@@ -196,7 +244,7 @@ class Globe {
 
 
 const canvas = document.querySelector("canvas");
-const globe = new Globe(canvas, "world-uv-map.jpg");
+const globe = new RadioGlobe(canvas, "world-uv-map.jpg");
 globe.render();
 
 //
@@ -209,12 +257,4 @@ globe.render();
 //         console.log(err);
 // });
 //
-//
-// fetch("https://de2.api.radio-browser.info/json/stations/search?countrycode=AZ&limit=20")
-//     .then(res => res.json())
-//     .then(data => {
-//         console.log(data);
-//     })
-//     .catch(err => {
-//         console.log(err);
-//     });
+
