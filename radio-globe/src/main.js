@@ -80,11 +80,11 @@ class RadioGlobe {
     #playPause = () => {
         if (this.#isPlaying) {
             this.#audio.pause();
-            this.#playPauseBtn.src = "play-icon.svg";
+            this.#playPauseBtn.src = "/play-icon.svg";
             this.#isPlaying = !this.#isPlaying;
         }
         else {
-            this.#playPauseBtn.src = "pause-icon.svg";
+            this.#playPauseBtn.src = "/pause-icon.svg";
             this.#audio.play();
             this.#isPlaying = !this.#isPlaying;
         }
@@ -188,7 +188,7 @@ class RadioGlobe {
                         this.#audio.src = station.url_resolved;
                         this.#audio.play();
                         this.#isPlaying = !this.#isPlaying;
-                        this.#playPauseBtn.src = "pause-icon.svg";
+                        this.#playPauseBtn.src = "/pause-icon.svg";
                         this.#countryName.innerText = station.country;
                         this.#stationName.innerText = station.name;
                     })
