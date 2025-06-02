@@ -244,7 +244,7 @@ class RadioGlobe {
 
 
 const canvas = document.querySelector("canvas");
-const globe = new RadioGlobe(canvas, "world-uv-map.jpg");
+const globe = new RadioGlobe(canvas, "/world-uv-map.jpg");
 globe.render();
 
 //
